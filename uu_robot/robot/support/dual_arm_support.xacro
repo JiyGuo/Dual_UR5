@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <property name="pi" value="3.14159265"/>
+
+    <xacro:macro name="support" params="prefix">
+
+        <link name="${prefix}support">
+        <visual>
+          <origin rpy="${pi / 2} 0 ${pi}" xyz=" -0.14 -0.5 -1.39"/>
+          <geometry>
+            <mesh filename="package://uu_robot/description/support/visual/dual_arm_support.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name = "gray">
+            <color rgba = "0.4 0.4 0.4 1"/>
+        </material>
+        </visual>
+        <collision>
+          <origin rpy="${pi / 2} 0 ${pi}" xyz=" -0.14 -0.5 -1.39"/>
+          <geometry>
+            <mesh filename="package://uu_robot/description/support/collision/dual_arm_support.stl"  scale="0.001 0.001 0.001"/>
+          </geometry>
+        </collision>
+        </link>
+
+    </xacro:macro>
+</robot>

@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="ip_ur5_left" default="192.168.100.101"/>
+  <arg name="ip_ur5_right" default="192.168.100.102"/>
+  <arg name="limited_ur5_left" default="false"/>
+  <arg name="limited_ur5_right" default="false"/>
+  <arg name="min_payload_ur5_left"  default="0.0"/>
+  <arg name="max_payload_ur5_left"  default="5.0"/>
+  <arg name="min_payload_ur5_right"  default="0.0"/>
+  <arg name="max_payload_ur5_right"  default="5.0"/>
+  <arg name="prefix_ur5_left" default="left_" />
+  <arg name="prefix_ur5_right" default="right_" />
+  <arg name="controller_name_ur5_left" default="left_ur5"/>
+  <arg name="controller_name_ur5_right" default="right_ur5"/>
+  <arg name="max_velocity_ur5_left" default="10.0"/> <!-- [rad/s] -->
+  <arg name="max_velocity_ur5_right" default="10.0"/> <!-- [rad/s] -->
+ <!-- gripper -->
+<!--  <arg name="right_comport" default="/dev/ttyUSB0"/>
+ <arg name="left_comport" default="/dev/ttyUSB1"/> -->
+
+  <!-- robot model -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find uu_robot)/robot/uu_robot.urdf.xacro'" />
+
+  <!-- ::: left ur5 driver ::: -->
+  <group ns="$(arg controller_name_ur5_left)">
+    <remap from="joint_states" to="$(arg prefix_ur5_left)joint_states"/>
+    <!-- left ur5 hardware interface -->
+    <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen" launch-prefix="">
+      <param name="reverse_port" type="int" value="50001"/>
+      <param name="robot_ip_address" type="str" value="$(arg ip_ur5_left)"/>
+      <param name="min_payload" type="double" value="$(arg min_payload_ur5_left)"/>
+      <param name="max_payload" type="double" value="$(arg max_payload_ur5_left)"/>
+      <param name="max_velocity" type="double" value="$(arg max_velocity_ur5_left)"/>
+      <param name="use_ros_control" type="bool" value="True"/>
+      <!--param name="prefix" value="$(arg prefix_ur5_left)" /-->
+    </node>
+    
+    <!-- left ur5 controller settings -->
+    <rosparam file="$(find uu_robot)/config/ur5_left_controllers.yaml" command="load" />
+
+    <!-- left ur5 spawn controller manager -->
+    <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="left_joint_state_controller --shutdown-timeout 1" />
+
+    <!-- left ur5 load other controllers (admittance controller) -->
+    <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
+    output="screen" args="load left_pos_based_controller" />
+
+    <!-- ur5 Convert joint states to /tf tranforms -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  </group>
+
+  <!-- ::: right ur5 driver ::: -->
+  <group ns="$(arg controller_name_ur5_right)">
+    <remap from="joint_states" to="$(arg prefix_ur5_right)joint_states"/>
+    <!-- right ur5 hardware interface -->
+    <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen" launch-prefix="">
+      <param name="reverse_port" type="int" value="50002"/>
+      <param name="robot_ip_address" type="str" value="$(arg ip_ur5_right)"/>
+      <param name="min_payload" type="double" value="$(arg min_payload_ur5_right)"/>
+      <param name="max_payload" type="double" value="$(arg max_payload_ur5_right)"/>
+      <param name="max_velocity" type="double" value="$(arg max_velocity_ur5_right)"/>
+      <param name="use_ros_control" type="bool" value="True"/>
+      <!--param name="prefix" value="$(arg prefix_ur5_right)" /-->
+    </node>
+    
+    <!-- right ur5 controller settings -->
+    <rosparam file="$(find uu_robot)/config/ur5_right_controllers.yaml" command="load"/>
+
+    <!-- right ur5 spawn controller manager -->
+    <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="right_joint_state_controller --shutdown-timeout 1" />
+
+    <!-- right ur5 load other controllers (admittance controller) -->
+    <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
+    output="screen" args="load right_pos_based_controller" />
+
+    <!-- right ur5 Convert joint states to /tf tranforms -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  </group>
+
+<!-- gripper -->
+<!--   <node name="right_robotiqCModel" pkg="robotiq_c_model_control" type="CModelRtuNode.py" args="$(arg right_comport)"> 
+     <param name="comport" value="$(arg right_comport)" />
+     <remap from="/CModelRobotOutput" to="/right_CModelRobotOutput"/>
+     <remap from="/CModelRobotInput" to="/right_CModelRobotInput"/>
+  </node>
+
+  <node name="left_robotiqCModel" pkg="robotiq_c_model_control" type="CModelRtuNode.py" args="$(arg left_comport)"> 
+     <param name="comport" value="$(arg left_comport)" />
+     <remap from="/CModelRobotOutput" to="/left_CModelRobotOutput"/>
+     <remap from="/CModelRobotInput" to="/left_CModelRobotInput"/>
+  </node> -->
+
+  <!-- TF Buffer Server -->
+  <node pkg="tf2_ros" type="buffer_server" name="tf2_buffer_server">
+      <param name="buffer_size" value="120.0"/>
+  </node>
+
+  <node name="rviz_uu_robot" pkg="rviz" type="rviz" args="-d $(find uu_robot)/config/uu_robot.rviz"/>
+
+</launch>

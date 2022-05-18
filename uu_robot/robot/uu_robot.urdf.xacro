@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="uu_robot" >
+
+<xacro:arg name="ns_left" default="/left_ur5"/>
+<xacro:arg name="ns_right" default="/right_ur5"/>
+<!--property name="pi" value="3.14159265"/-->
+  <!-- common stuff -->
+<!--xacro:include filename="$(find uu_robot)/description/common/left.gazebo.xacro"/-->
+<!--xacro:include filename="$(find uu_robot)/description/common/right.gazebo.xacro"/-->
+<!-- add a "gazebo" block in the URDF to bring in the libgazebo_ros_control.so controller plugin library -->
+ <xacro:include filename="$(find ur_description)/urdf/common.gazebo.xacro"/>
+  <!--xacro:include filename="$(find uu_robot)/description/common/common.gazebo.xacro">
+     <xacro:arg name="namespace" value="$(arg ns_left)"/>
+  </xacro:include-->
+  <!--xacro:include filename="$(find uu_robot)/description/common/common.gazebo.xacro">
+     <xacro:arg name="namespace" value="${arg ns_right}"/>
+  </xacro:include--> 
+
+  <!--xacro:include filename="$(find uu_robot)/robot/support.transmission.xacro" /-->
+  <!--xacro:support_transmission prefix="uu_" /-->
+  <!-- include urdf -->
+  <xacro:include filename="$(find uu_robot)/robot/support/uu_support.urdf.xacro" />
+  <!-- URDF file contains torque and joint limits, include 'transmission' field -->
+  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
+
+  <!-- robot arm : display the arm by setting prefix -->
+  
+
+  <xacro:support prefix="uu_"/>
+  <xacro:ur5_robot prefix="left_" joint_limited="false"/>
+  <xacro:ur5_robot prefix="right_" joint_limited="false"/>
+
+  <!-- add force sensor -->
+  <!--xacro:include filename="$(find uu_robot)/description/sensor/optoforce.urdf.xacro" /-->
+  <!--xacro:optoforce prefix="left_"/-->
+  <!--xacro:optoforce prefix="right_"/-->
+
+
+  <!--xacro:common_gazebo ns="/right_ur5">
+    <xacro:arg name="namespace" value="$(arg ns_right)"/>
+  </xacro:common_gazebo-->
+
+  <!--xacro:common_gazebo ns="/left_ur5">
+    <xacro:arg name="namespace" value="/left_ur5"/>
+  </xacro:common_gazebo-->
+
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "uu_support" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+<!-- joint -->
+<joint name="right_base_link-support_fixed_joint" type="fixed">
+  <parent link="uu_support"/>
+  <child link="right_base_link"/>
+<!-- world robot conference -->
+<origin xyz="0.0005 -0.22663 1.53885" rpy="2.3446 0.0426 -0.0476"/>
+<!-- lab -->
+  <!--origin xyz="0.0005 -0.22663 1.53885" rpy="2.356194 -0.0316 -0.0533"/-->
+
+  <!--origin xyz="0.0005 -0.22663 1.53885" rpy="2.356194 0 0"/-->
+  <!--origin xyz="-0.22664 0.410 0.66951" rpy="${3/4*pi} 0 -${pi/2}"/-->
+</joint>
+
+<joint name="left_base_link-support_fixed_joint" type="fixed">
+  <parent link="uu_support"/>
+  <child link="left_base_link"/>
+<!-- world robot conference -->
+<origin xyz="0.0173835 0.216081 1.53393" rpy="2.36794 -0.0463692 3.10086"/>
+<!-- lab -->
+ <!--origin xyz="0.0248383 0.21475 1.53835" rpy="2.35564 0.0146267 3.06533"/-->
+
+  <!--origin xyz="0.00127306 0.21542 1.53832" rpy="2.35637 -0.016965 3.11863"/-->
+  <!--origin xyz="0.0005 0.22663 1.53885" rpy="-2.356194 0 0"/-->
+  <!--origin xyz="0.0005 0.22663 1.53885" rpy="2.356194 0 3.1415926"/-->
+  <!--origin xyz="0.22664 0.410 0.66951" rpy="${3/4*pi} 0 ${pi/2}"/-->
+</joint>
+
+<material name="gray">
+    <color rgba="0.62 0.62 0.62 1"/>
+     <!-- <color rgba="${45. / 255.} ${60 / 255.} ${77. / 255.} 1"/> -->
+  </material>
+
+    <!--origin rpy="0 0 0" xyz="0.4 -0.25 -0.61"/-->
+    <!--origin rpy="0 ${-pi / 2} ${-pi / 2}" xyz="-0.3 -0.4 0.701"/-->
+
+</robot>

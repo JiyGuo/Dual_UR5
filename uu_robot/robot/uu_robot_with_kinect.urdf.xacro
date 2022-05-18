@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="uu_robot" >
+
+<xacro:arg name="ns_left" default="/left_ur5"/>
+<xacro:arg name="ns_right" default="/right_ur5"/>
+
+<property name="pi" value="3.14159265"/>
+  <!-- common stuff -->
+<!--xacro:include filename="$(find uu_robot)/description/common/left.gazebo.xacro"/-->
+<!--xacro:include filename="$(find uu_robot)/description/common/right.gazebo.xacro"/-->
+<!-- add a "gazebo" block in the URDF to bring in the libgazebo_ros_control.so controller plugin library -->
+ <xacro:include filename="$(find uu_robot)/description/common/common.gazebo.xacro"/>
+  <!--xacro:include filename="$(find uu_robot)/description/common/common.gazebo.xacro">
+     <xacro:arg name="namespace" value="$(arg ns_left)"/>
+  </xacro:include-->
+  <!--xacro:include filename="$(find uu_robot)/description/common/common.gazebo.xacro">
+     <xacro:arg name="namespace" value="${arg ns_right}"/>
+  </xacro:include--> 
+
+  <xacro:include filename="$(find uu_robot)/robot/support.transmission.xacro" />
+  <!-- include urdf -->
+  <xacro:include filename="$(find uu_robot)/description/support/uu_support.urdf.xacro" />
+  <!-- URDF file contains torque and joint limits, include 'transmission' field -->
+  <xacro:include filename="$(find uu_robot)/description/ur5/ur5.urdf.xacro" />
+
+  <!-- robot arm : display the arm by setting prefix -->
+  <xacro:support prefix="uu_"/>
+  <xacro:ur5_robot prefix="left_" joint_limited="false"/>
+  <xacro:ur5_robot prefix="right_" joint_limited="false"/>
+
+  <!-- add force sensor -->
+  <!--xacro:include filename="$(find uu_robot)/description/sensor/optoforce.urdf.xacro" /-->
+  <!--xacro:optoforce prefix="left_"/-->
+  <!--xacro:optoforce prefix="right_"/-->
+
+
+  <!--xacro:common_gazebo ns="/right_ur5">
+    <xacro:arg name="namespace" value="$(arg ns_right)"/>
+  </xacro:common_gazebo-->
+
+  <!--xacro:common_gazebo ns="/left_ur5">
+    <xacro:arg name="namespace" value="/left_ur5"/>
+  </xacro:common_gazebo-->
+
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "uu_support" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+<!-- joint -->
+<joint name="right_base_link-support_fixed_joint" type="fixed">
+  <parent link="uu_support"/>
+  <child link="right_base_link"/>
+<!-- world robot conference -->
+<origin xyz="0.0005 -0.22663 1.53885" rpy="2.3446 0.0426 -0.0476"/>
+<!-- lab -->
+  <!--origin xyz="0.0005 -0.22663 1.53885" rpy="2.356194 -0.0316 -0.0533"/-->
+
+  <!--origin xyz="0.0005 -0.22663 1.53885" rpy="2.356194 0 0"/-->
+  <!--origin xyz="-0.22664 0.410 0.66951" rpy="${3/4*pi} 0 -${pi/2}"/-->
+</joint>
+
+<joint name="left_base_link-support_fixed_joint" type="fixed">
+  <parent link="uu_support"/>
+  <child link="left_base_link"/>
+<!-- world robot conference -->
+<origin xyz="0.0173835 0.216081 1.53393" rpy="2.36794 -0.0463692 3.10086"/>
+<!-- lab -->
+ <!--origin xyz="0.0248383 0.21475 1.53835" rpy="2.35564 0.0146267 3.06533"/-->
+
+  <!--origin xyz="0.00127306 0.21542 1.53832" rpy="2.35637 -0.016965 3.11863"/-->
+  <!--origin xyz="0.0005 0.22663 1.53885" rpy="-2.356194 0 0"/-->
+  <!--origin xyz="0.0005 0.22663 1.53885" rpy="2.356194 0 3.1415926"/-->
+  <!--origin xyz="0.22664 0.410 0.66951" rpy="${3/4*pi} 0 ${pi/2}"/-->
+</joint>
+
+<material name="gray">
+    <color rgba="0.62 0.62 0.62 1"/>
+     <!-- <color rgba="${45. / 255.} ${60 / 255.} ${77. / 255.} 1"/> -->
+  </material>
+
+    <!--origin rpy="0 0 0" xyz="0.4 -0.25 -0.61"/-->
+    <!--origin rpy="0 ${-pi / 2} ${-pi / 2}" xyz="-0.3 -0.4 0.701"/-->
+
+<!-- add simple kinect model -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.1 0.05"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+      <parent link="world"/>
+      <child link="camera_link"/>
+      <origin rpy="0.0 0 ${pi}" xyz="2.2 0.0 1.4"/>
+  </joint>
+
+  <gazebo reference="camera_link">
+    <material>Gazebo/Red</material>
+  </gazebo>  
+
+<!-- camera simulator plug-in -->
+  <gazebo reference="camera_link">
+    <sensor type="depth" name="openni_camera_camera">       
+        <always_on>1</always_on>
+        <visualize>true</visualize>             
+        <camera>
+            <horizontal_fov>1.047</horizontal_fov>  
+            <image>
+                <width>640</width>
+                <height>480</height>
+                <format>R8G8B8</format>
+            </image>
+            <depth_camera>
+
+            </depth_camera>
+            <clip>
+                <near>0.1</near>
+                <far>100</far>
+            </clip>
+        </camera>
+      <!--here is the plug-in that does the work of kinect emulation-->
+       <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+            <alwaysOn>true</alwaysOn>
+            <updateRate>10.0</updateRate>
+            <cameraName>kinect</cameraName>
+            <frameName>kinect_depth_frame</frameName>                   
+            <imageTopicName>rgb/image_raw</imageTopicName>
+            <depthImageTopicName>depth/image_raw</depthImageTopicName>
+            <pointCloudTopicName>depth/points</pointCloudTopicName>
+            <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>              
+            <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>            
+            <!--pointCloudCutoff>0.4</pointCloudCutoff--> 
+            <pointCloudCutoff>0.3</pointCloudCutoff>               
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <CxPrime>0.0</CxPrime>
+            <Cx>0.0</Cx>
+            <Cy>0.0</Cy>
+            <focalLength>0.0</focalLength>
+      </plugin>
+    </sensor>
+  </gazebo>        
+
+
+<xacro:support_transmission prefix="uu_" />
+
+</robot>

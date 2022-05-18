@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!--property name="pi" value="3.14159265"/-->
+
+    <xacro:macro name="support" params="prefix">
+
+        <link name="${prefix}support">
+
+          <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="50.0" />
+            <inertia  ixx="10.0" ixy="0.0"  ixz="0.0"  iyy="10.0"  iyz="10.0"  izz="10.0" />
+          </inertial>
+
+        <visual>
+          <!--origin rpy="${pi / 2} 0 ${pi / 2}" xyz=" -0.2 -0.62 -1.36"/-->
+          <!-- <origin rpy="${pi / 2} 0 ${pi / 2}" xyz=" -0.2 -0.62 0"/> -->
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <!-- <mesh filename="package://uu_robot/description/support/visual/uu_support.stl" scale="0.001 0.001 0.001"/> -->
+            <mesh filename="package://uu_robot/robot/support/visual/uu_support_actual.STL"/>
+          </geometry>
+          <material name = "gray">
+            <color rgba = "0.4 0.4 0.4 1"/>
+        </material>
+        </visual>
+        <collision>
+          <origin rpy="0 0 0" xyz="0 0 0"/>
+          <geometry>
+            <!-- <mesh filename="package://uu_robot/description/support/collision/uu_support.stl"  scale="0.001 0.001 0.001"/> -->
+            <mesh filename="package://uu_robot/robot/support/visual/uu_support_actual.STL"/>
+          </geometry>
+        </collision>
+        </link>
+
+    </xacro:macro>
+</robot>

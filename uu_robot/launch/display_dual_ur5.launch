@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<!--visualize dual arm ur5 robot
+
+  Usage:
+   roslaunch uu_robot sim_rviz_uu_robot.launch limited:=<value>
+-->
+
+<launch>
+
+  <arg name="limited" default="false"/>
+
+  <!-- robot model -->
+  <!--param unless="$(arg limited)" name="robot_description" command="$(find xacro)/xacro.py '$(find uu_robot)/robot/uu_robot.urdf.xacro'" /-->
+  <!--param if="$(arg limited)" name="robot_description" command="$(find xacro)/xacro.py '$(find uu_robot)/robot/uu_robot.urdf.xacro'" /-->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find uu_robot)/robot/uu_robot.urdf.xacro'" />
+
+  <!--for sim 发布器-->
+  <!-- use_gui param : drag slide bar to contorl single joint, but this param is deprecated in melodic' -->
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    <param name="use_gui" value="true"/>
+  </node> 
+  
+  <!-- run gui node 发布器 -->
+  <!--node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /-->
+
+  <!-- 订阅器 -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!--rviz个性化-->
+  <node name="rviz_uu_robot" pkg="rviz" type="rviz" args="-d $(find uu_robot)/config/uu_robot.rviz"/>
+
+</launch>

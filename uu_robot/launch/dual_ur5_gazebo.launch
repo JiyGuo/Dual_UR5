@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="limited" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="controller_name_ur5_left" default="left_ur5"/>
+  <arg name="controller_name_ur5_right" default="right_ur5"/>
+  
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="worlds/empty.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+ <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find uu_robot)/config/dual_ur5_controllers.yaml" command="load"/>
+
+<!-- send robot urdf to param server -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find uu_robot)/robot/uu_robot.urdf.xacro'" />
+
+  <!-- Spawn a robot into Gazebo -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+     args="-param robot_description -urdf -model dual_ur5 -z 0.0 -J left_shoulder_pan_joint 1.5" />
+
+<!--start up the controller plug-ins via the controller manager -->
+  <node name="right_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
+    output="screen" ns="/right_ur5" args="load right_pos_based_controller" />   
+
+  <node name="left_controller_spawner" pkg="controller_manager" type="controller_manager" respawn="false"
+    output="screen" ns="/left_ur5" args="load left_pos_based_controller" />   
+
+
+ <!-- :::::::::::::visualize robot in Rviz::::::::::::: -->
+
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+
+  <!-- joint_state_controller -->
+  <rosparam file="$(find ur_gazebo)/controller/joint_state_controller.yaml" command="load"/>
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
+
+  <!--for sim-->
+  <node name="rviz_uu_robot" pkg="rviz" type="rviz" args="-d $(find uu_robot)/config/uu_robot.rviz"/>
+
+</launch>

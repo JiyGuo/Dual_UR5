@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="uu_robot" >
+
+<property name="pi" value="3.14159265"/>
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find uu_robot)/description/common/common.gazebo.xacro" />
+  <xacro:include filename="$(find uu_robot)/robot/support.transmission.xacro" />
+  <!-- include urdf -->
+  <xacro:include filename="$(find uu_robot)/description/support/uu_support.urdf.xacro" />
+  <xacro:include filename="$(find uu_robot)/description/ur5/ur5.urdf.xacro" />
+
+  <!-- robot arm : display the arm by setting prefix -->
+  <xacro:support prefix="uu_"/>
+  <xacro:ur5_robot prefix="left_" joint_limited="false"/>
+  <xacro:ur5_robot prefix="right_" joint_limited="false"/>
+
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "uu_support" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+<!-- joint -->
+<joint name="right_base_link-support_fixed_joint" type="fixed">
+  <parent link="uu_support"/>
+  <child link="right_base_link"/>
+  <origin xyz="0.0005 -0.22663 1.53885" rpy="2.356194 0 0"/>
+</joint>
+
+<joint name="left_base_link-support_fixed_joint" type="fixed">
+  <parent link="uu_support"/>
+  <child link="left_base_link"/>
+  <origin xyz="0.0005 0.22663 1.53885" rpy="2.356194 0 3.1415926"/>
+</joint>
+
+<!-- right_arm_two_fingers_hand -->
+  <xacro:include filename="$(find uu_robot)/description/fingers/urdf/two_fingers_hand/two_fingers_v2.urdf.xacro" />
+  <xacro:two_fingers prefix="right_" />
+
+  <!-- left_arm_three_fingers_hand -->
+  <xacro:include filename="$(find uu_robot)/description/fingers/urdf/three_fingers_hand/three_fingers_v2.urdf.xacro" />
+  <xacro:three_fingers prefix="left_" />
+
+  <!-- three_fingers -->
+  <joint name="left_arm_to_three_fingers_hand" type="fixed">
+    <parent link="left_tool0"/>
+    <child link="left_palm_link"/>
+    <!--origin xyz="-0.001 0.195 -0.015" rpy=" 0 ${-pi * 3 / 4} ${-pi / 2}"/-->
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+<!-- two_fingers -->
+  <joint name="right_arm_to_two_fingers_hand" type="fixed">
+    <parent link="right_tool0"/>
+    <child link="right_two_fingers_hand_palm"/>
+    <!--origin xyz="-0.001 0.195 -0.015" rpy=" 0 ${-pi * 3 / 4} ${-pi / 2}"/-->
+    <origin xyz="0 0 0.005" rpy="0 0 0"/>
+  </joint>
+
+<material name="gray">
+    <color rgba="0.62 0.62 0.62 1"/>
+     <!-- <color rgba="${45. / 255.} ${60 / 255.} ${77. / 255.} 1"/> -->
+  </material>
+
+<!--Collision object-->
+  <link name = "object">
+    <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+            <mesh filename = "package://uu_robot/description/shelf/shelf2.STL"/>
+        </geometry>
+        <material name="gray"/>
+    </visual>
+    <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+            <mesh filename = "package://uu_robot/description/shelf/shelf2.STL"/>
+        </geometry>
+    </collision>
+</link>
+<joint name = "object_jnt" type = "fixed">
+    <parent link = "uu_support"/>
+    <child link = "object"/>
+    <origin rpy="0 0 0" xyz="0.700 -0.4 0.856"/>
+</joint>
+    <!--origin rpy="0 0 0" xyz="0.4 -0.25 -0.61"/-->
+    <!--origin rpy="0 ${-pi / 2} ${-pi / 2}" xyz="-0.3 -0.4 0.701"/-->
+<xacro:support_transmission prefix="uu_" />
+
+</robot>
